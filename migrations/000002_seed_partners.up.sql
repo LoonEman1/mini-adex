@@ -37,7 +37,7 @@ VALUES
     ARRAY[]::TEXT[],
     ARRAY[]::TEXT[],
     0,
-    ARRAY['adult']
+    ARRAY['games']
 ),
 (
     'dsp-delta',

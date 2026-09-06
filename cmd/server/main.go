@@ -9,6 +9,8 @@ import (
 	"mini-adex/repository/postgres"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -54,9 +56,41 @@ func main() {
 	mux.HandleFunc("POST /auction", handler.Auction)
 	mux.HandleFunc("GET /health", httptransport.Health)
 
-	log.Printf("server started on :8080")
-
-	if err := http.ListenAndServe(":8080", mux); err != nil {
-		log.Fatalf("start HTTP server: %v", err)
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: mux,
 	}
+
+	go func() {
+		log.Printf("server started on :8080")
+
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("start HTTP server: %v", err)
+		}
+	}()
+
+	stopSignal := make(chan os.Signal, 1)
+
+	signal.Notify(
+		stopSignal,
+		os.Interrupt,
+		syscall.SIGTERM,
+	)
+
+	<-stopSignal
+
+	log.Printf("shutting down server")
+
+	shutdownCtx, cancel := context.WithTimeout(
+		context.Background(),
+		5*time.Second,
+	)
+	defer cancel()
+
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		log.Printf("server shutdown: %v", err)
+
+	}
+
+	log.Printf("server stopped")
 }

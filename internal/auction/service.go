@@ -33,6 +33,8 @@ func NewService(
 ) *Service {
 	return &Service{
 		partners: partners,
+		dsp:      dsp,
+		timeout:  timeout,
 	}
 }
 
@@ -49,7 +51,7 @@ func (s *Service) Process(
 	}
 
 	matched := Filter(req, partners)
-	successful := s.sendToPartners(ctx, req, partners)
+	successful := s.sendToPartners(ctx, req, matched)
 
 	return domain.AuctionResult{
 		RequestID:   req.RequestID,

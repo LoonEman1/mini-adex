@@ -40,6 +40,36 @@ VALUES
     ARRAY['adult']
 ),
 (
+    'dsp-delta',
+    'DSP Delta',
+    'http://mock-dsp:9001/bid',
+    true,
+    ARRAY['RU'],
+    ARRAY['mobile'],
+    2.0,
+    ARRAY[]::TEXT[]
+),
+(
+    'dsp-epsilon',
+    'DSP Epsilon',
+    'http://mock-dsp:9001/bid',
+    true,
+    ARRAY['RU'],
+    ARRAY['tv'],
+    0.5,
+    ARRAY[]::TEXT[]
+),
+(
+    'dsp-zeta',
+    'DSP Zeta',
+    'http://mock-dsp:9001/bid',
+    true,
+    ARRAY['RU'],
+    ARRAY['mobile'],
+    1.0,
+    ARRAY['sport']
+),
+(
     'dsp-disabled',
     'Disabled DSP',
     'http://mock-dsp:9001/bid',

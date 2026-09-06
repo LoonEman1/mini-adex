@@ -4,7 +4,9 @@ import (
 	"context"
 	"log"
 	"mini-adex/internal/auction"
+	"mini-adex/internal/dsp"
 	"mini-adex/repository/postgres"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -27,7 +29,10 @@ func main() {
 
 	partnerRepo := postgres.NewPartnerRepository(db)
 
-	service := auction.NewService(partnerRepo)
+	dspClient := dsp.NewFakeClient()
 
-	partners, err := partnerRepo.List(ctx)
+	service := auction.NewService(partnerRepo, dspClient, 200*time.Millisecond)
+
+	_ = service
+
 }

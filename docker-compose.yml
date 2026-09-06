@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: mini_adex
+      POSTGRES_USER: mini_adex
+      POSTGRES_PASSWORD: mini_adex
+    ports:
+      - "5433:5432"

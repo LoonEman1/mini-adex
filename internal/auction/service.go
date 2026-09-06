@@ -4,17 +4,32 @@ import (
 	"context"
 	"fmt"
 	"mini-adex/internal/domain"
+	"time"
 )
 
 type PartnerRepository interface {
 	List(ctx context.Context) ([]domain.Partner, error)
 }
 
-type Service struct {
-	partners PartnerRepository
+type DSPClient interface {
+	Bid(
+		ctx context.Context,
+		partner domain.Partner,
+		req domain.AuctionRequest,
+	)
 }
 
-func NewService(partners PartnerRepository) *Service {
+type Service struct {
+	partners PartnerRepository
+	dsp      DSPClient
+	timeout time.Duration
+}
+
+func NewService(
+	partners PartnerRepository,
+	dsp DSPClient,
+	timeout time.Duration,
+	) *Service {
 	return &Service{
 		partners: partners,
 	}
@@ -31,6 +46,8 @@ func (s *Service) Process(
 	}
 
 	matched := Filter(req, partners)
+	
+
 
 	return domain.AuctionResult{}, nil
 }

@@ -1,29 +1,64 @@
 package auction
 
-import "mini-adex/internal/domain"
+import (
+	"log"
+	"mini-adex/internal/domain"
+)
 
-func Match(req domain.AuctionRequest, partner domain.Partner) bool {
+type MatchResult struct {
+	Matched bool
+	Reason  string
+}
+
+func match(
+	req domain.AuctionRequest,
+	partner domain.Partner,
+) MatchResult {
 	if !partner.IsEnabled {
-		return false
+		return MatchResult{
+			Matched: false,
+			Reason:  "disabled",
+		}
 	}
 
 	if !containsOrEmpty(partner.Countries, req.Country) {
-		return false
+		return MatchResult{
+			Matched: false,
+			Reason:  "country_mismatch",
+		}
 	}
 
 	if !containsOrEmpty(partner.DeviceTypes, req.DeviceType) {
-		return false
+		return MatchResult{
+			Matched: false,
+			Reason:  "device_type_mismatch",
+		}
 	}
 
 	if req.BidFloor < partner.MinBidFloor {
-		return false
+		return MatchResult{
+			Matched: false,
+			Reason:  "bid_floor_too_low",
+		}
 	}
 
 	if containsBlockedCategory(req.Categories, partner.BlockedCategories) {
-		return false
+		return MatchResult{
+			Matched: false,
+			Reason:  "blocked_category",
+		}
 	}
 
-	return true
+	return MatchResult{
+		Matched: true,
+	}
+}
+
+func Match(
+	req domain.AuctionRequest,
+	partner domain.Partner,
+) bool {
+	return match(req, partner).Matched
 }
 
 func containsOrEmpty(items []string, targetValue string) bool {
@@ -60,9 +95,20 @@ func Filter(
 	matchedPartners := make([]domain.Partner, 0, len(partners))
 
 	for _, partner := range partners {
-		if Match(req, partner) {
+
+		result := match(req, partner)
+
+		if result.Matched {
 			matchedPartners = append(matchedPartners, partner)
+			continue
 		}
+
+		log.Printf(
+			"auction request_id=%s partner=%s filtered reason=%s",
+			req.RequestID,
+			partner.UID,
+			result.Reason,
+		)
 	}
 
 	return matchedPartners

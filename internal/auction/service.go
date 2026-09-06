@@ -62,15 +62,26 @@ func (s *Service) Process(
 	matched := Filter(req, partners)
 	successful := s.sendToPartners(ctx, req, matched)
 
-	return domain.AuctionResult{
+	result := domain.AuctionResult{
 		RequestID:   req.RequestID,
 		MatchedDSPs: partnerUIDs(matched),
 		Sent:        len(matched),
 		Succeeded:   successful,
 		DurationMS:  int64(time.Since(started).Milliseconds()),
-	}, nil
-}
+	}
 
+	log.Printf(
+		"auction request_id=%s matched=%d filtered=%d sent=%d succeeded=%d duration_ms=%d",
+		req.RequestID,
+		len(matched),
+		len(partners)-len(matched),
+		result.Sent,
+		result.Succeeded,
+		result.DurationMS,
+	)
+
+	return result, nil
+}
 func (s *Service) sendToPartners(
 	ctx context.Context,
 	req domain.AuctionRequest,

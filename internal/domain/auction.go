@@ -1,17 +1,17 @@
 package domain
 
 type AuctionRequest struct {
-	RequestID string
-	Country string
+	RequestID  string
+	Country    string
 	DeviceType string
-	BidFloor float64
+	BidFloor   float64
 	Categories []string
 }
 
 type AuctionResult struct {
-	RequestID string
+	RequestID   string
 	MatchedDSPs []string
-	Sent int
-	Succeeded int
-	DurationMS int64 
+	Sent        int
+	Succeeded   int
+	DurationMS  int64
 }

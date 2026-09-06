@@ -60,7 +60,7 @@ func (r *PartnerRepository) List(
 
 		partners = append(partners, partner)
 	}
-	
+
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("iterate partners: %w", err)
 	}

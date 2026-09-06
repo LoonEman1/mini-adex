@@ -3,6 +3,7 @@ package auction
 import (
 	"context"
 	"fmt"
+	"log"
 	"mini-adex/internal/domain"
 	"sync"
 	"time"
@@ -47,6 +48,14 @@ func (s *Service) Process(
 	partners, err := s.partners.List(ctx)
 
 	if err != nil {
+
+		log.Printf(
+			"auction request_id=%s error=%v duration_ms=%d",
+			req.RequestID,
+			err,
+			time.Since(started).Milliseconds(),
+		)
+
 		return domain.AuctionResult{}, fmt.Errorf("list partners: %w", err)
 	}
 

@@ -26,7 +26,7 @@ func (r auctionRequest) validate() error {
 		return errors.New("request_id is required")
 	}
 
-	if len(r.Country) != 2 {
+	if !isValidCountry(r.Country) {
 		return errors.New("country must be a two-letter code")
 	}
 
@@ -39,6 +39,20 @@ func (r auctionRequest) validate() error {
 	}
 
 	return nil
+}
+
+func isValidCountry(country string) bool {
+	if len(country) != 2 {
+		return false
+	}
+
+	for i := 0; i < len(country); i++ {
+		if country[i] < 'A' || country[i] > 'Z' {
+			return false
+		}
+	}
+
+	return true
 }
 
 func isValidDeviceType(deviceType string) bool {

@@ -31,6 +31,8 @@ func (h *Handler) Auction(w http.ResponseWriter, r *http.Request) {
 	var req auctionRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("decode auction request: %v", err)
+
 		http.Error(w, "invalid JSON", http.StatusBadRequest)
 		return
 	}

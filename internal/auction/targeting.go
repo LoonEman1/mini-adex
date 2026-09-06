@@ -52,3 +52,18 @@ func containsBlockedCategory(reqCategories []string, blockedCategories []string)
 
 	return false
 }
+
+func Filter(
+	req domain.AuctionRequest,
+	partners []domain.Partner,
+) []domain.Partner {
+	matchedPartners := make([]domain.Partner, 0, len(partners))
+
+	for _, partner := range partners {
+		if Match(req, partner) {
+			matchedPartners = append(matchedPartners, partner)
+		}
+	}
+
+	return matchedPartners
+}

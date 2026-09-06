@@ -176,3 +176,37 @@ func TestMatch_ValidPartner(t *testing.T) {
 		t.Errorf("Match() = false for valid partner, want true")
 	}
 }
+
+func TestFilter_ReturnsOnlyMatched(t *testing.T) {
+	f := newTargetingFixture()
+
+	valid := f.partner
+
+	disabled := f.partner
+	disabled.UID = "dsp-disabled"
+	disabled.IsEnabled = false
+
+	wrongCountry := f.partner
+	wrongCountry.UID = "dsp-us"
+	wrongCountry.Countries = []string{"US"}
+
+	partners := []domain.Partner{
+		valid,
+		disabled,
+		wrongCountry,
+	}
+
+	matched := Filter(f.request, partners)
+
+	if len(matched) != 1 {
+		t.Fatalf("Filter() returned %d partners, want 1", len(matched))
+	}
+
+	if matched[0].UID != valid.UID {
+		t.Errorf(
+			"Filter() returned %q, want %q",
+			matched[0].UID,
+			valid.UID,
+		)
+	}
+}

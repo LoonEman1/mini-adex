@@ -5,7 +5,10 @@ import (
 	"log"
 	"mini-adex/internal/auction"
 	"mini-adex/internal/dsp"
+	httptransport "mini-adex/internal/transport/http"
 	"mini-adex/repository/postgres"
+	"net/http"
+	"os"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -14,10 +17,13 @@ import (
 func main() {
 	ctx := context.Background()
 
+	databaseURL := os.Getenv("DATABASE_URL")
+
 	db, err := pgxpool.New(
 		ctx,
-		"postgres://mini_adex:mini_adex@127.0.0.1:5433/mini_adex?sslmode=disable",
+		databaseURL,
 	)
+
 	if err != nil {
 		log.Fatalf("create postgres pool: %v", err)
 	}
@@ -31,8 +37,25 @@ func main() {
 
 	dspClient := dsp.NewFakeClient()
 
-	service := auction.NewService(partnerRepo, dspClient, 200*time.Millisecond)
+	auctionTimeout := 200 * time.Millisecond
 
-	_ = service
+	if value := os.Getenv("AUCTION_TIMEOUT"); value != "" {
+		auctionTimeout, err = time.ParseDuration(value)
+		if err != nil {
+			log.Fatalf("parse AUCTION_TIMEOUT: %v", err)
+		}
+	}
 
+	service := auction.NewService(partnerRepo, dspClient, auctionTimeout)
+
+	handler := httptransport.NewHandler(service)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("POST /auction", handler.Auction)
+
+	if err := http.ListenAndServe(":8080", mux); err != nil {
+		log.Fatalf("start HTTP server: %v", err)
+	}
+
+	log.Printf("server started on :8080")
 }

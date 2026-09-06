@@ -2,6 +2,7 @@ package auction
 
 import (
 	"context"
+	"errors"
 	"mini-adex/internal/domain"
 	"testing"
 	"time"
@@ -118,5 +119,55 @@ func TestService_Process(t *testing.T) {
 			"Process() matched %d DSPs, want 2",
 			len(result.MatchedDSPs),
 		)
+	}
+}
+
+func TestService_Process_DSPErrorDoesNotFailAuction(t *testing.T) {
+	f := newServiceFixture()
+
+	f.dsp.err = errors.New("DSP failed")
+
+	result, err := f.service().Process(
+		context.Background(),
+		f.request,
+	)
+
+	if err != nil {
+		t.Fatalf("Process() returned error: %v", err)
+	}
+
+	if result.Sent != 2 {
+		t.Errorf("Sent = %d, want 2", result.Sent)
+	}
+
+	if result.Succeeded != 0 {
+		t.Errorf("Succeeded = %d, want 0", result.Succeeded)
+	}
+}
+
+func TestService_Process_NoMatchedPartners(t *testing.T) {
+	f := newServiceFixture()
+
+	f.request.Country = "DE"
+
+	result, err := f.service().Process(
+		context.Background(),
+		f.request,
+	)
+
+	if err != nil {
+		t.Fatalf("Process() returned error: %v", err)
+	}
+
+	if result.Sent != 0 {
+		t.Errorf("Sent = %d, want 0", result.Sent)
+	}
+
+	if result.Succeeded != 0 {
+		t.Errorf("Succeeded = %d, want 0", result.Succeeded)
+	}
+
+	if len(result.MatchedDSPs) != 0 {
+		t.Errorf("MatchedDSPs = %v, want empty", result.MatchedDSPs)
 	}
 }

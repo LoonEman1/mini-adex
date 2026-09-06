@@ -2,6 +2,22 @@
 
 ## Запуск
 
+Сначала создайте `.env` из `.env.example`.
+
+Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Linux / WSL:
+
+```bash
+cp .env.example .env
+```
+
+После этого запустите проект:
+
 ```bash
 docker compose up --build
 ```

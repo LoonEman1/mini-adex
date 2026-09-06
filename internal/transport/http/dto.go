@@ -1,4 +1,4 @@
-package http
+package httptransport
 
 import (
 	"errors"
@@ -21,7 +21,7 @@ type auctionResponse struct {
 	DurationMS  int64    `json:"duration_ms"`
 }
 
-func (r auctionRequest) Validate() error {
+func (r auctionRequest) validate() error {
 	if r.RequestID == "" {
 		return errors.New("request_id is required")
 	}

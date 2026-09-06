@@ -52,6 +52,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /auction", handler.Auction)
+	mux.HandleFunc("GET /health", httptransport.Health)
 
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		log.Fatalf("start HTTP server: %v", err)

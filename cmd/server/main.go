@@ -54,9 +54,9 @@ func main() {
 	mux.HandleFunc("POST /auction", handler.Auction)
 	mux.HandleFunc("GET /health", httptransport.Health)
 
+	log.Printf("server started on :8080")
+
 	if err := http.ListenAndServe(":8080", mux); err != nil {
 		log.Fatalf("start HTTP server: %v", err)
 	}
-
-	log.Printf("server started on :8080")
 }
